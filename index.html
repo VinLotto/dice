@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VIN Dice – On-Chain Even/Odd (VIC)</title>
+  <meta name="description" content="Provably-fair even/odd with VIN on VIC. Bowl reveal matches on-chain parity."/>
+  <link rel="icon" href="logo64.png" type="image/png"/>
+  <link rel="stylesheet" href="style.css"/>
+
+  <!-- Load ethers v5 *trước* app.js. Dùng 2 CDN để dự phòng -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" crossorigin="anonymous"></script>
+</head>
+<body>
+  <noscript>This app requires JavaScript to run.</noscript>
+
+  <!-- ===== HOME (main UI) ===== -->
+  <div class="container" id="home-interface">
+    <!-- Header -->
+    <header class="header">
+      <div class="brand">
+        <img src="logo64.png" alt="VIN" class="logo"/>
+        <div class="brand-text">
+          <h1>VIN Dice</h1>
+          <p class="subtitle">Provably-fair on VIC • Parity comes from the smart contract</p>
+
+          <!-- === PRICE (VIN/USD = VIC×100) === -->
+          <div id="price-panel" class="price-panel" aria-live="polite">
+            <span id="price-text" class="price-text skeleton">Loading price...</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="wallet-box">
+        <!-- Guide (giữ đúng link bạn dùng) -->
+        <a id="btn-guide" class="btn accent" href="https://docs.google.com/document/d/1ychYdYmevJpFydfHuwXM3iw7VLtJouYp/edit" target="_blank" rel="noopener">
+          Guide / How to play
+        </a>
+
+        <!-- Swap VIN/VIC (giữ IPFS link bạn dùng) -->
+        <a id="btn-open-swap" class="btn accent" href="https://ipfs.io/ipfs/bafybeievvutakkkchayh4nwwvcrmu6ff4phhza5ma27rej7rqakhvvxdv4" target="_blank" rel="noopener">
+          Swap VIN/VIC
+        </a>
+
+        <!-- Wallet buttons (không dùng onclick inline; app.js sẽ bind) -->
+        <button id="btn-connect" class="btn primary">Play Dice Game</button>
+        <div id="wallet-info" class="wallet-info hidden">
+          <span id="addr-short">—</span>
+          <button id="btn-disconnect" class="btn ghost">Disconnect</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Balances -->
+    <section class="panel" id="balances-panel">
+      <h2>Balances</h2>
+      <div class="balances-grid">
+        <div class="card">
+          <div class="label">VIC</div>
+          <div id="vic-balance" class="value">0.0000</div>
+        </div>
+        <div class="card">
+          <div class="label">VIN</div>
+          <!-- Giữ nguyên ID cũ để app.js hiển thị số dư VIN -->
+          <div id="froll-balance" class="value">0.0000</div>
+        </div>
+        <div class="card">
+          <div class="label">Contract Pool</div>
+          <div id="pool-balance" class="value">—</div>
+        </div>
+      </div>
+      <p class="note">Token: VIN (18 decimals) • Network: VIC • Results are from on-chain events.</p>
+    </section>
+
+    <!-- Table -->
+    <section class="panel" id="table-panel">
+      <h2>Select Table (enter Min)</h2>
+      <div class="custom-table">
+        <label for="minBet">Min Bet (VIN) — minimum 0.001</label>
+        <input id="minBet" type="number" min="0.001" step="0.001" placeholder="e.g., 1.25"/>
+        <button id="btn-set-table" class="btn accent">Set Table</button>
+      </div>
+      <div class="current-table">
+        Current table: <span id="current-table">Not set</span>
+      </div>
+      <p class="note">Max Bet = Min Bet × 50 (on-chain rule).</p>
+    </section>
+
+    <!-- Play -->
+    <section class="panel" id="play-panel">
+      <h2>Play Even / Odd</h2>
+      <div class="bet-row">
+        <div class="toggle">
+          <button id="btn-even" class="btn toggle active" data-side="even">Even</button>
+          <button id="btn-odd" class="btn toggle" data-side="odd">Odd</button>
+        </div>
+        <div class="amount-box">
+          <label for="bet-amount">Bet Amount (VIN)</label>
+          <input id="bet-amount" type="number" min="0.001" step="0.001" placeholder="e.g., 0.005"/>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="btn-clear" class="btn ghost" title="Clear amount">Clear</button>
+        <button id="btn-half" class="btn ghost" title="Half the amount">½</button>
+        <button id="btn-double" class="btn ghost" title="Double the amount">Double</button>
+        <button id="btn-repeat" class="btn ghost" title="Repeat last round">Repeat</button>
+
+        <!-- Approve -->
+        <input id="approve-amount" class="inline-input" type="number" min="0" step="0.001" placeholder="Approve amount (VIN)"/>
+        <button id="btn-approve" class="btn accent" title="Approve VIN to the contract">Approve VIN</button>
+
+        <button id="btn-play" class="btn primary fire" title="Shake & Play">Place Bet</button>
+      </div>
+
+      <div class="limits">
+        Table limits: <span id="limit-min">—</span> – <span id="limit-max">—</span> VIN
+      </div>
+
+      <div id="tx-status" class="status"></div>
+    </section>
+
+    <!-- Latest result -->
+    <section class="panel" id="result-panel">
+      <h2>Latest Result</h2>
+      <div class="result-grid">
+        <div class="card">
+          <div class="label">Outcome</div>
+          <div id="last-outcome" class="value">—</div>
+        </div>
+        <div class="card">
+          <div class="label">Win / Lose</div>
+          <div id="last-payout" class="value">—</div>
+        </div>
+        <div class="card">
+          <div class="label">Tx Hash</div>
+          <div id="last-tx" class="value ellipsis">—</div>
+        </div>
+      </div>
+      <p class="note">On page load, bowl reveals the most recent contract round.</p>
+    </section>
+
+    <!-- Stage -->
+    <section class="panel" id="stage-panel">
+      <h2>Stage</h2>
+      <div class="stage">
+        <div id="bowl" class="bowl" aria-label="Shaking bowl"></div>
+        <div id="coins" class="coins"></div>
+      </div>
+      <p class="note">After you play, the bowl shakes and reveals the exact on-chain parity.</p>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <div class="links">
+        <a href="https://vinplay.vin" target="_blank" rel="noopener">vinplay.vin</a>
+        <span>•</span>
+        <a href="https://t.me/VinEcosystem" target="_blank" rel="noopener">Telegram</a>
+        <span>•</span>
+        <a href="https://x.com/VinEcosystem" target="_blank" rel="noopener">X</a>
+      </div>
+      <div class="fine">No admins. No tricks. Just code and trust.</div>
+    </footer>
+  </div>
+  <!-- ===== END HOME ===== -->
+
+  <!-- ===== PRICE (VIN/USD = VIC×100) ===== -->
+  <script>
+  (function (){
+    const el = document.getElementById('price-text');
+    function done(t){ if(el){ el.textContent = t; el.classList.remove('skeleton'); } }
+    async function tick(){
+      try{
+        const r = await fetch('https://api.binance.com/api/v3/ticker/price?symbol=VICUSDT',{cache:'no-store'});
+        const j = await r.json();
+        const vic = Number(j?.price);
+        if (!Number.isFinite(vic)) throw 0;
+        const vin = vic * 100;
+        done(`1 VIN = ${vin.toFixed(2)} USD`);
+      }catch{ done('Price unavailable'); }
+    }
+    tick(); setInterval(tick, 60000);
+  })();
+  </script>
+
+  <!-- ===== ETHERS FALLBACK CHECK (phòng khi CDN chặn) ===== -->
+  <script>
+  (function ensureEthers(){
+    function msg(){
+      var el = document.getElementById('tx-status');
+      if(el){
+        el.classList.add('err');
+        el.textContent = 'Không tải được ethers từ CDN. Hãy thử refresh hoặc tải ethers.umd.min.js về cùng thư mục và đổi <script> sang file local.';
+      }
+    }
+    // Nếu sau 1.2s vẫn chưa có window.ethers -> cảnh báo
+    setTimeout(function(){ if(!window.ethers) msg(); }, 1200);
+  })();
+  </script>
+
+  <!-- App logic (ethers v5) -->
+  <script src="app.js"></script>
+</body>
+</html>
