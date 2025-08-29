@@ -3,27 +3,27 @@
    Contract: VinDiceV2 @ 0x9b8BfcAFa8bCaC35B8EdC7682ec6d60B0d1ED1f2
 */
 
-const CHAIN_ID_HEX = "0x58";
-const RPC_URL = "https://rpc.viction.xyz";
-const EXPLORER = "https://vicscan.xyz";
+const CHAIN_ID_HEX = "0x58"; // Viction blockchain chain ID (in hexadecimal)
+const RPC_URL = "https://rpc.viction.xyz"; // Viction RPC URL
+const EXPLORER = "https://vicscan.xyz"; // Viction block explorer URL
 
-// Địa chỉ cố định
-const VIN_ADDR  = "0x941F63807401efCE8afe3C9d88d368bAA287Fac4";
-const DICE_ADDR = "0x9b8BfcAFa8bCaC35B8EdC7682ec6d60B0d1ED1f2";
+// Fixed contract addresses
+const VIN_ADDR = "0x941F63807401efCE8afe3C9d88d368bAA287Fac4"; // VIN Token contract address
+const DICE_ADDR = "0x9b8BfcAFa8bCaC35B8EdC7682ec6d60B0d1ED1f2"; // VinDice V2 contract address
 
-/* =============== GAS POLICY (ký 1 lần) =============== */
-const MIN_PRIORITY_GWEI = 3;   // priority fee tối thiểu
-const MIN_MAXFEE_GWEI   = 12;  // maxFeePerGas tối thiểu
-const MIN_GASPRICE_GWEI = 8;   // fallback legacy gasPrice
+/* =============== GAS POLICY (sign once) =============== */
+const MIN_PRIORITY_GWEI = 3; // Minimum priority fee (GWEI)
+const MIN_MAXFEE_GWEI = 12; // Minimum max fee per gas (GWEI)
+const MIN_GASPRICE_GWEI = 8; // Minimum gas price (GWEI)
 
 const LIMITS = {
-  PLAY_MIN: 120000,  // tối thiểu gasLimit cho play
-  PLAY_CAP: 250000,  // trần an toàn cho play
-  APPROVE:   80000,
-  SETTABLE: 120000,
+  PLAY_MIN: 120000, // Minimum gas limit for playing
+  PLAY_CAP: 250000, // Maximum gas limit for playing
+  APPROVE: 80000, // Gas limit for approving
+  SETTABLE: 120000, // Gas limit for setting table
 };
 
-/* =============== ABI rút gọn =============== */
+/* =============== ABIs (Application Binary Interface) =============== */
 const ERC20_ABI = [
   "function decimals() view returns (uint8)",
   "function balanceOf(address) view returns (uint256)",
@@ -38,19 +38,19 @@ const DICE_ABI = [
   "event Played(address indexed player, uint256 amount, bool guessEven, bool resultEven, bool win)"
 ];
 
-/* =============== STATE =============== */
-let provider, signer, account;
-let vin, dice;
-let vinDecimals = 18;
+/* =============== STATE VARIABLES =============== */
+let provider, signer, account; // Web3 provider, signer, and account information
+let vin, dice; // Contracts for VIN Token and VinDice V2
+let vinDecimals = 18; // VIN Token decimals
 
-let lastBetAmountWei = null;
-let lastGuessEven = true;
+let lastBetAmountWei = null; // Last bet amount in Wei
+let lastGuessEven = true; // Last bet's guess (Even/Odd)
 
 /* =============== HELPERS =============== */
-const $     = (id) => document.getElementById(id);
-const fmt   = (bn, d = 18) => ethers.utils.formatUnits(bn ?? 0, d).toString();
-const parse = (v, d = 18) => ethers.utils.parseUnits(String(v || "0"), d);
-const short = (a) => (a ? a.slice(0, 6) + "..." + a.slice(-4) : "—");
+const $ = (id) => document.getElementById(id); // Helper function for getting elements by ID
+const fmt = (bn, d = 18) => ethers.utils.formatUnits(bn ?? 0, d).toString(); // Format big numbers to string
+const parse = (v, d = 18) => ethers.utils.parseUnits(String(v || "0"), d); // Parse value to BigNumber
+const short = (a) => (a ? a.slice(0, 6) + "..." + a.slice(-4) : "—"); // Shorten addresses for display
 
 function setStatus(msg, ok = null) {
   const el = $("tx-status");
@@ -61,49 +61,49 @@ function setStatus(msg, ok = null) {
   if (ok === false) el.classList.add("err");
 }
 
-/* Rung bát */
-function startShake(){ try{ $("bowl")?.classList.add("shake"); }catch{} }
-function stopShake(delay=800){ try{ setTimeout(()=>$("bowl")?.classList.remove("shake"), delay); }catch{} }
+/* Shake the bowl animation */
+function startShake() { try { $("bowl")?.classList.add("shake"); } catch { } }
+function stopShake(delay = 800) { try { setTimeout(() => $("bowl")?.classList.remove("shake"), delay); } catch { } }
 
-/* Vẽ 4 đồng xu theo parity */
-function renderCoins({ parityEven, txHash }){
+/* Render coins according to the parity (Even/Odd) */
+function renderCoins({ parityEven, txHash }) {
   const coinsEl = $("coins");
   if (!coinsEl) return;
   coinsEl.className = "coins";
   coinsEl.innerHTML = "";
-  const pick = (m)=>{ try{ return parseInt((txHash||"").slice(-4),16)%m; }catch{return 0;} };
+  const pick = (m) => { try { return parseInt((txHash || "").slice(-4), 16) % m; } catch { return 0; } };
 
-  if (parityEven){
-    const layouts = ["layout-even-0","layout-even-2a","layout-even-4"];
+  if (parityEven) {
+    const layouts = ["layout-even-0", "layout-even-2a", "layout-even-4"];
     const cls = layouts[pick(layouts.length)];
     coinsEl.classList.add(cls);
-    const redCount = {"layout-even-0":0,"layout-even-2a":2,"layout-even-4":4}[cls];
-    for(let i=0;i<4;i++){ const c=document.createElement("div"); c.className="coin "+(i<redCount?"red":"white"); coinsEl.appendChild(c); }
+    const redCount = { "layout-even-0": 0, "layout-even-2a": 2, "layout-even-4": 4 }[cls];
+    for (let i = 0; i < 4; i++) { const c = document.createElement("div"); c.className = "coin " + (i < redCount ? "red" : "white"); coinsEl.appendChild(c); }
   } else {
-    const layouts = ["layout-odd-1","layout-odd-3a"];
+    const layouts = ["layout-odd-1", "layout-odd-3a"];
     const cls = layouts[pick(layouts.length)];
     coinsEl.classList.add(cls);
-    const redCount = {"layout-odd-1":1,"layout-odd-3a":3}[cls];
-    for(let i=0;i<4;i++){ const c=document.createElement("div"); c.className="coin "+(i<redCount?"red":"white"); coinsEl.appendChild(c); }
+    const redCount = { "layout-odd-1": 1, "layout-odd-3a": 3 }[cls];
+    for (let i = 0; i < 4; i++) { const c = document.createElement("div"); c.className = "coin " + (i < redCount ? "red" : "white"); coinsEl.appendChild(c); }
   }
 }
 
-/* Hiển thị kết quả + link tx */
-function showResult({ resultEven, win, txHash }){
-  if ($("last-outcome")) $("last-outcome").textContent = resultEven==null ? "—" : (resultEven ? "Even" : "Odd");
-  if ($("last-payout"))  $("last-payout").textContent  = win==null ? "—" : (win ? "WIN 🎉" : "LOSE");
+/* Display the result and transaction link */
+function showResult({ resultEven, win, txHash }) {
+  if ($("last-outcome")) $("last-outcome").textContent = resultEven == null ? "—" : (resultEven ? "Even" : "Odd");
+  if ($("last-payout")) $("last-payout").textContent = win == null ? "—" : (win ? "WIN 🎉" : "LOSE");
   const ltx = $("last-tx");
-  if (ltx){
+  if (ltx) {
     ltx.textContent = txHash || "—";
     ltx.title = txHash || "";
     ltx.style.cursor = txHash ? "pointer" : "default";
-    ltx.onclick = txHash ? ()=>window.open(`${EXPLORER}/tx/${txHash}`,"_blank") : null;
+    ltx.onclick = txHash ? () => window.open(`${EXPLORER}/tx/${txHash}`, "_blank") : null;
   }
   if (resultEven != null) renderCoins({ parityEven: !!resultEven, txHash });
 }
 
-/* Lỗi thân thiện */
-function prettifyError(e){
+/* User-friendly error messages */
+function prettifyError(e) {
   const raw = e?.error?.message || e?.data?.message || e?.reason || e?.message || String(e);
   if (/ALLOWANCE INSUFFICIENT/i.test(raw)) return "Allowance too low. Please approve first.";
   if (/PLEASE SELECT TABLE FIRST/i.test(raw)) return "No table selected. Please set your table first.";
@@ -118,39 +118,39 @@ function prettifyError(e){
 }
 
 /* =============== GAS OVERRIDES =============== */
-async function buildOverridesForPlay(args){
+async function buildOverridesForPlay(args) {
   let gasLimit = ethers.BigNumber.from(LIMITS.PLAY_MIN.toString());
-  try{
+  try {
     const est = await dice.estimateGas.play(...args);
     gasLimit = est.mul(120).div(100);
     const min = ethers.BigNumber.from(LIMITS.PLAY_MIN.toString());
     const cap = ethers.BigNumber.from(LIMITS.PLAY_CAP.toString());
     if (gasLimit.lt(min)) gasLimit = min;
     if (gasLimit.gt(cap)) gasLimit = cap;
-  }catch{
+  } catch {
     gasLimit = ethers.BigNumber.from(LIMITS.PLAY_CAP.toString());
   }
 
   const fee = await provider.getFeeData();
   const minPrio = ethers.utils.parseUnits(String(MIN_PRIORITY_GWEI), "gwei");
-  const minMax  = ethers.utils.parseUnits(String(MIN_MAXFEE_GWEI), "gwei");
+  const minMax = ethers.utils.parseUnits(String(MIN_MAXFEE_GWEI), "gwei");
 
-  if (fee.maxFeePerGas && fee.maxPriorityFeePerGas){
+  if (fee.maxFeePerGas && fee.maxPriorityFeePerGas) {
     let prio = fee.maxPriorityFeePerGas.gte(minPrio) ? fee.maxPriorityFeePerGas : minPrio;
     let maxf = fee.maxFeePerGas.mul(2).add(prio);
     if (maxf.lt(minMax)) maxf = minMax;
     return { gasLimit, maxFeePerGas: maxf, maxPriorityFeePerGas: prio };
   } else {
-    let gp = fee.gasPrice && fee.gasPrice.gte(ethers.utils.parseUnits(String(MIN_GASPRICE_GWEI),"gwei"))
-      ? fee.gasPrice : ethers.utils.parseUnits(String(MIN_GASPRICE_GWEI),"gwei");
+    let gp = fee.gasPrice && fee.gasPrice.gte(ethers.utils.parseUnits(String(MIN_GASPRICE_GWEI), "gwei"))
+      ? fee.gasPrice : ethers.utils.parseUnits(String(MIN_GASPRICE_GWEI), "gwei");
     return { gasLimit, gasPrice: gp };
   }
 }
 
-async function buildOverridesSimple(kind="approve_or_set"){
+async function buildOverridesSimple(kind = "approve_or_set") {
   const fee = await provider.getFeeData();
-  const gasLimit = ethers.BigNumber.from(kind==="set" ? LIMITS.SETTABLE : LIMITS.APPROVE);
-  if (fee.maxFeePerGas && fee.maxPriorityFeePerGas){
+  const gasLimit = ethers.BigNumber.from(kind === "set" ? LIMITS.SETTABLE : LIMITS.APPROVE);
+  if (fee.maxFeePerGas && fee.maxPriorityFeePerGas) {
     const prio = ethers.utils.parseUnits(String(MIN_PRIORITY_GWEI), "gwei");
     let maxf = fee.maxFeePerGas.mul(2).add(prio);
     const minMax = ethers.utils.parseUnits(String(MIN_MAXFEE_GWEI), "gwei");
@@ -163,14 +163,14 @@ async function buildOverridesSimple(kind="approve_or_set"){
 }
 
 /* =============== WALLET FLOW =============== */
-async function ensureChain(){
+async function ensureChain() {
   if (!window.ethereum) throw new Error("Please install MetaMask or another EVM wallet.");
   const ch = await window.ethereum.request({ method: "eth_chainId" });
-  if (ch !== CHAIN_ID_HEX){
-    try{
+  if (ch !== CHAIN_ID_HEX) {
+    try {
       await window.ethereum.request({ method: "wallet_switchEthereumChain", params: [{ chainId: CHAIN_ID_HEX }] });
-    }catch(e){
-      if (e && e.code === 4902){
+    } catch (e) {
+      if (e && e.code === 4902) {
         await window.ethereum.request({
           method: "wallet_addEthereumChain",
           params: [{
@@ -186,8 +186,8 @@ async function ensureChain(){
   }
 }
 
-async function connect(){
-  if (!window.ethers){ setStatus("ethers not loaded — please refresh.", false); return; }
+async function connect() {
+  if (!window.ethers) { setStatus("ethers not loaded — please refresh.", false); return; }
   setStatus("Connecting wallet…");
   await ensureChain();
 
@@ -196,8 +196,8 @@ async function connect(){
   signer = provider.getSigner();
   account = await signer.getAddress();
 
-  vin  = new ethers.Contract(VIN_ADDR,  ERC20_ABI, signer);
-  dice = new ethers.Contract(DICE_ADDR, DICE_ABI,  signer);
+  vin = new ethers.Contract(VIN_ADDR, ERC20_ABI, signer);
+  dice = new ethers.Contract(DICE_ADDR, DICE_ABI, signer);
   try { vinDecimals = await vin.decimals(); } catch {}
 
   $("addr-short").textContent = short(account);
@@ -208,15 +208,15 @@ async function connect(){
   setStatus("Wallet connected ✔", true);
 }
 
-function disconnect(){
+function disconnect() {
   provider = signer = vin = dice = null;
   account = null;
   $("addr-short").textContent = "—";
   $("wallet-info").classList.add("hidden");
   $("btn-connect").classList.remove("hidden");
-  $("pool-balance").textContent  = "—";
-  $("vic-balance").textContent   = "0.0000";
-  $("froll-balance").textContent = "0.0000"; // giữ ID cũ để hiển thị VIN
+  $("pool-balance").textContent = "—";
+  $("vic-balance").textContent = "0.0000";
+  $("froll-balance").textContent = "0.0000"; // Keep the ID for VIN balance
   $("current-table").textContent = "Not set";
   $("limit-min").textContent = "—";
   $("limit-max").textContent = "—";
@@ -224,20 +224,20 @@ function disconnect(){
 }
 
 /* =============== READ =============== */
-async function refreshAll(){
+async function refreshAll() {
   if (!provider) return;
   const me = await signer.getAddress();
 
-  const vic  = await provider.getBalance(me);
+  const vic = await provider.getBalance(me);
   const vbal = await vin.balanceOf(me);
   const pool = await dice.bankroll();
 
-  $("vic-balance").textContent   = Number(ethers.utils.formatEther(vic)).toFixed(4);
+  $("vic-balance").textContent = Number(ethers.utils.formatEther(vic)).toFixed(4);
   $("froll-balance").textContent = Number(fmt(vbal, vinDecimals)).toFixed(4);
-  $("pool-balance").textContent  = Number(fmt(pool, vinDecimals)).toFixed(3);
+  $("pool-balance").textContent = Number(fmt(pool, vinDecimals)).toFixed(3);
 
   const [min, max] = await dice.playerTable(me);
-  if (min && !min.isZero()){
+  if (min && !min.isZero()) {
     $("current-table").textContent = `${fmt(min, vinDecimals)} – ${fmt(max, vinDecimals)} VIN`;
     $("limit-min").textContent = fmt(min, vinDecimals);
     $("limit-max").textContent = fmt(max, vinDecimals);
@@ -245,7 +245,7 @@ async function refreshAll(){
 }
 
 /* =============== TABLE =============== */
-async function setTable(){
+async function setTable() {
   if (!dice) throw new Error("Connect wallet first.");
   const minStr = $("minBet").value;
   if (!minStr) throw new Error("Enter Min Bet (e.g., 0.001).");
@@ -253,7 +253,7 @@ async function setTable(){
 
   setStatus("Setting table…");
   const [curMin] = await dice.playerTable(await signer.getAddress());
-  if (!curMin.eq(minWei)){
+  if (!curMin.eq(minWei)) {
     const overrides = await buildOverridesSimple("set");
     const tx = await dice.selectTable(minWei, overrides);
     await tx.wait();
@@ -263,9 +263,9 @@ async function setTable(){
 }
 
 /* =============== APPROVE =============== */
-async function approveVin(){
+async function approveVin() {
   if (!vin || !dice) throw new Error("Connect wallet first.");
-  const raw = $("approve-amount").value || "1000"; // mặc định 1000 VIN
+  const raw = $("approve-amount").value || "1000"; // Default approve amount is 1000 VIN
   const amountWei = parse(raw, vinDecimals);
   if (amountWei.lte(0)) throw new Error("Approve amount must be greater than 0.");
 
@@ -277,15 +277,15 @@ async function approveVin(){
 }
 
 /* =============== PLAY =============== */
-function isEvenSelected(){ return $("btn-even").classList.contains("active"); }
-function toggleSide(e){
+function isEvenSelected() { return $("btn-even").classList.contains("active"); }
+function toggleSide(e) {
   const side = e.currentTarget.dataset.side;
-  if (side === "even"){ $("btn-even").classList.add("active"); $("btn-odd").classList.remove("active"); }
+  if (side === "even") { $("btn-even").classList.add("active"); $("btn-odd").classList.remove("active"); }
   else { $("btn-odd").classList.add("active"); $("btn-even").classList.remove("active"); }
 }
 
-/* Preflight mạnh để fail sớm */
-async function preflight(amountWei, guessEven){
+/* Preflight strong checks to fail early */
+async function preflight(amountWei, guessEven) {
   const me = await signer.getAddress();
 
   const bal = await vin.balanceOf(me);
@@ -303,10 +303,10 @@ async function preflight(amountWei, guessEven){
   if (bank.lt(amountWei.mul(2))) throw new Error("Pool is insufficient for payout. Try a smaller amount.");
 
   try { await dice.callStatic.play(amountWei, guessEven); }
-  catch(e){ throw new Error(`Cannot place bet: ${prettifyError(e)}`); }
+  catch (e) { throw new Error(`Cannot place bet: ${prettifyError(e)}`); }
 }
 
-async function placeBet(){
+async function placeBet() {
   if (!dice) throw new Error("Connect wallet first.");
   const amountStr = $("bet-amount").value;
   if (!amountStr) throw new Error("Enter the VIN amount you want to bet.");
@@ -319,7 +319,7 @@ async function placeBet(){
   await preflight(amountWei, guessEven);
 
   startShake();
-  try{
+  try {
     const overrides = await buildOverridesForPlay([amountWei, guessEven]);
     setStatus("Sending transaction…");
     const tx = await dice.play(amountWei, guessEven, overrides);
@@ -332,68 +332,68 @@ async function placeBet(){
 
     await refreshAll();
 
-    // Parse event Played để lấy parity & win (nếu có)
-    let resultEven=null, win=null;
-    try{
+    // Parse event Played to get parity & win (if any)
+    let resultEven = null, win = null;
+    try {
       const iface = new ethers.utils.Interface(DICE_ABI);
-      for (const lg of rc.logs || []){
-        if (lg.address.toLowerCase() === DICE_ADDR.toLowerCase()){
+      for (const lg of rc.logs || []) {
+        if (lg.address.toLowerCase() === DICE_ADDR.toLowerCase()) {
           const parsed = iface.parseLog(lg);
-          if (parsed && parsed.name === "Played" && parsed.args.player.toLowerCase() === (account||"").toLowerCase()){
+          if (parsed && parsed.name === "Played" && parsed.args.player.toLowerCase() === (account || "").toLowerCase()) {
             resultEven = parsed.args.resultEven;
             win = parsed.args.win;
             break;
           }
         }
       }
-    }catch{}
+    } catch { }
 
     showResult({ resultEven, win, txHash: rc.transactionHash });
     setStatus("Bet completed ✔", true);
-  }catch(e){
+  } catch (e) {
     setStatus(prettifyError(e), false);
-  }finally{
+  } finally {
     stopShake();
   }
 }
 
 /* =============== AMOUNT UTILS =============== */
-function clearAmount(){ $("bet-amount").value = ""; }
-function halfAmount(){ const v=Number($("bet-amount").value||0); if(v>0) $("bet-amount").value=Math.max(v/2,0.001).toFixed(3); }
-function doubleAmount(){ const v=Number($("bet-amount").value||0); if(v>0) $("bet-amount").value=(v*2).toFixed(3); }
-function repeatAmount(){
+function clearAmount() { $("bet-amount").value = ""; }
+function halfAmount() { const v = Number($("bet-amount").value || 0); if (v > 0) $("bet-amount").value = Math.max(v / 2, 0.001).toFixed(3); }
+function doubleAmount() { const v = Number($("bet-amount").value || 0); if (v > 0) $("bet-amount").value = (v * 2).toFixed(3); }
+function repeatAmount() {
   if (!lastBetAmountWei) return;
   $("bet-amount").value = fmt(lastBetAmountWei, vinDecimals);
-  if (lastGuessEven){ $("btn-even").classList.add("active"); $("btn-odd").classList.remove("active"); }
+  if (lastGuessEven) { $("btn-even").classList.add("active"); $("btn-odd").classList.remove("active"); }
   else { $("btn-odd").classList.add("active"); $("btn-even").classList.remove("active"); }
 }
 
 /* =============== INIT & EVENTS =============== */
-function wireUI(){
+function wireUI() {
   $("btn-even")?.addEventListener("click", toggleSide);
   $("btn-odd")?.addEventListener("click", toggleSide);
 
-  $("btn-connect")?.addEventListener("click", async()=>{ try{ await connect(); }catch(e){ setStatus(e.message, false); } });
-  $("btn-disconnect")?.addEventListener("click", ()=>disconnect());
+  $("btn-connect")?.addEventListener("click", async () => { try { await connect(); } catch (e) { setStatus(e.message, false); } });
+  $("btn-disconnect")?.addEventListener("click", () => disconnect());
 
-  $("btn-set-table")?.addEventListener("click", async()=>{ try{ await setTable(); }catch(e){ setStatus(e.message, false); } });
-  $("btn-approve")?.addEventListener("click", async()=>{ try{ await approveVin(); await refreshAll(); }catch(e){ setStatus(e.message, false); } });
-  $("btn-play")?.addEventListener("click", async()=>{ try{ await placeBet(); }catch(e){ setStatus(e.message, false); } });
+  $("btn-set-table")?.addEventListener("click", async () => { try { await setTable(); } catch (e) { setStatus(e.message, false); } });
+  $("btn-approve")?.addEventListener("click", async () => { try { await approveVin(); await refreshAll(); } catch (e) { setStatus(e.message, false); } });
+  $("btn-play")?.addEventListener("click", async () => { try { await placeBet(); } catch (e) { setStatus(e.message, false); } });
 
   $("btn-clear")?.addEventListener("click", clearAmount);
   $("btn-half")?.addEventListener("click", halfAmount);
   $("btn-double")?.addEventListener("click", doubleAmount);
   $("btn-repeat")?.addEventListener("click", repeatAmount);
 
-  if (window.ethereum){
-    window.ethereum.on("chainChanged", ()=>window.location.reload());
-    window.ethereum.on("accountsChanged", ()=>window.location.reload());
+  if (window.ethereum) {
+    window.ethereum.on("chainChanged", () => window.location.reload());
+    window.ethereum.on("accountsChanged", () => window.location.reload());
   }
 }
 
-/* Hiển thị pool & ván gần nhất khi vừa mở trang (read-only) */
-async function showLatestOnLoad(){
-  try{
+/* Show the pool & latest bet result when the page loads (read-only) */
+async function showLatestOnLoad() {
+  try {
     const ro = new ethers.providers.JsonRpcProvider(RPC_URL);
     const rdice = new ethers.Contract(DICE_ADDR, DICE_ABI, ro);
     const pool = await rdice.bankroll();
@@ -408,17 +408,17 @@ async function showLatestOnLoad(){
       toBlock: current,
       topics: [topic0],
     });
-    if (logs.length){
-      const last = logs[logs.length-1];
+    if (logs.length) {
+      const last = logs[logs.length - 1];
       const parsed = iface.parseLog(last);
       showResult({ resultEven: parsed.args.resultEven, win: null, txHash: last.transactionHash });
     }
-  }catch{}
+  } catch { }
 }
 
 /* Bootstrap */
-document.addEventListener("DOMContentLoaded", ()=>{
-  if (!window.ethers){
+document.addEventListener("DOMContentLoaded", () => {
+  if (!window.ethers) {
     setStatus("ethers is not loaded. Please refresh the page.", false);
     return;
   }
