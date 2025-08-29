@@ -1,31 +1,31 @@
 /* =========================================================
    VIN Dice — style.css (V2, no swap)
-   Tông màu chuyên nghiệp, nút nổi bật, responsive mượt
+   Professional color tone, highlighted buttons, smooth responsiveness
    ========================================================= */
 
 /* ---------- CSS Variables (palette) ---------- */
 :root{
-  --bg: #0b0f18;
-  --bg-card: #0f172a;
-  --bg-soft: #111827;
+  --bg: #0b0f18;              /* Background color for the main container */
+  --bg-card: #0f172a;         /* Background color for card-like elements */
+  --bg-soft: #111827;         /* Softer background for specific sections */
 
-  --text: #e5e7eb;
-  --text-dim: #94a3b8;
-  --text-soft: #cbd5e1;
+  --text: #e5e7eb;            /* Default text color */
+  --text-dim: #94a3b8;        /* Dimmed text color for secondary text */
+  --text-soft: #cbd5e1;       /* Soft text color for additional information */
 
-  --border: #1f2937;
+  --border: #1f2937;          /* Border color for elements */
 
-  --primary: #16a34a;
-  --primary-hover: #22c55e;
-  --primary-press: #15803d;
+  --primary: #16a34a;         /* Primary color for buttons and highlights */
+  --primary-hover: #22c55e;   /* Hover effect for primary buttons */
+  --primary-press: #15803d;   /* Pressed state color for primary buttons */
 
-  --accent: #0ea5e9;
-  --accent-hover: #38bdf8;
-  --accent-press: #0284c7;
+  --accent: #0ea5e9;          /* Accent color for highlighted elements */
+  --accent-hover: #38bdf8;    /* Hover effect for accent elements */
+  --accent-press: #0284c7;    /* Pressed state for accent elements */
 
-  --ring: rgba(56, 189, 248, .35);
-  --shadow: 0 10px 30px rgba(2, 8, 23, .55);
-  --soft-shadow: 0 6px 18px rgba(2,8,23,.35);
+  --ring: rgba(56, 189, 248, .35); /* Ring color for focus state */
+  --shadow: 0 10px 30px rgba(2, 8, 23, .55); /* Default shadow */
+  --soft-shadow: 0 6px 18px rgba(2,8,23,.35); /* Soft shadow for containers */
 }
 
 /* ---------- Reset ---------- */
@@ -40,145 +40,145 @@ a:hover { text-decoration: underline; }
 /* ---------- Body ---------- */
 body{
   font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
-  background: radial-gradient(1200px 800px at 15% -10%, #0a1223 0%, #05070d 40%, #04060b 100%);
-  color: var(--text);
-  -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
+  background: radial-gradient(1200px 800px at 15% -10%, #0a1223 0%, #05070d 40%, #04060b 100%); /* Radial gradient background */
+  color: var(--text);                 /* Text color from the variable */
+  -webkit-font-smoothing: antialiased; /* For smoother text rendering */
+  min-height: 100vh;                  /* Ensures body takes full height of viewport */
 }
 
 /* ---------- Layout ---------- */
 .container{
-  max-width: 1040px;
-  margin: 0 auto;
-  padding: 22px 16px 96px;
+  max-width: 1040px;                  /* Max width of the main container */
+  margin: 0 auto;                     /* Centers the container */
+  padding: 22px 16px 96px;            /* Adds padding to container */
 }
 
 .panel{
-  background: linear-gradient(180deg, rgba(17,24,39,.9), rgba(15,23,42,.92));
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 18px;
-  margin: 16px 0;
-  box-shadow: var(--soft-shadow);
-  backdrop-filter: blur(6px);
+  background: linear-gradient(180deg, rgba(17,24,39,.9), rgba(15,23,42,.92)); /* Gradient background */
+  border: 1px solid var(--border);    /* Border color */
+  border-radius: 18px;                /* Rounded corners */
+  padding: 18px;                      /* Padding inside the panel */
+  margin: 16px 0;                     /* Margin between panels */
+  box-shadow: var(--soft-shadow);     /* Shadow effect */
+  backdrop-filter: blur(6px);         /* Blurs the background behind the panel */
 }
 
 h1, h2{
-  margin: 0 0 10px;
-  font-weight: 800;
-  letter-spacing: -0.012em;
+  margin: 0 0 10px;                   /* Margin for headers */
+  font-weight: 800;                   /* Font weight for boldness */
+  letter-spacing: -0.012em;           /* Adjusts letter spacing */
 }
-h1{ font-size: 28px; }
-h2{ font-size: 20px; color: var(--text-soft); }
-.subtitle{ margin: 4px 0 0; color: var(--text-dim); }
+h1{ font-size: 28px; }                 /* Font size for main header */
+h2{ font-size: 20px; color: var(--text-soft); } /* Font size for subheaders with soft color */
+.subtitle{ margin: 4px 0 0; color: var(--text-dim); } /* Subtitle style with dimmed text */
 
 /* ---------- Header ---------- */
 .header{
-  display: flex; align-items: center; justify-content: space-between; gap: 12px;
-  padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 12px;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px; /* Flex layout for header */
+  padding-bottom: 10px; border-bottom: 1px solid var(--border); margin-bottom: 12px; /* Adds bottom border */
 }
-.brand{ display: flex; align-items: center; gap: 12px; }
+.brand{ display: flex; align-items: center; gap: 12px; } /* Flex layout for the brand section */
 .logo{
-  width: 56px; height: 56px; border-radius: 14px; object-fit: contain;
-  box-shadow: 0 8px 22px rgba(2,8,23,.55);
+  width: 56px; height: 56px; border-radius: 14px; object-fit: contain; /* Style for logo image */
+  box-shadow: 0 8px 22px rgba(2,8,23,.55); /* Shadow for the logo */
 }
-.brand-text h1{ margin-bottom: 2px; color: #e2e8f0; }
+.brand-text h1{ margin-bottom: 2px; color: #e2e8f0; } /* Main brand heading style */
 
-.wallet-box{ display: flex; align-items: center; gap: 10px; }
-.wallet-info{ display: flex; align-items: center; gap: 10px; }
-.hidden{ display: none !important; }
-.ellipsis{ max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.wallet-box{ display: flex; align-items: center; gap: 10px; } /* Flex layout for wallet buttons */
+.wallet-info{ display: flex; align-items: center; gap: 10px; } /* Wallet info section */
+.hidden{ display: none !important; } /* Hides an element */
+.ellipsis{ max-width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; } /* Truncates text with ellipsis */
 
 /* ---------- Cards ---------- */
 .balances-grid, .result-grid{
-  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; /* Grid layout for balance and result grids */
 }
 .card{
-  background: linear-gradient(180deg, rgba(31,41,55,.75), rgba(15,23,42,.8));
-  border: 1px solid var(--border);
-  border-radius: 14px; padding: 14px;
-  box-shadow: var(--soft-shadow);
+  background: linear-gradient(180deg, rgba(31,41,55,.75), rgba(15,23,42,.8)); /* Card background gradient */
+  border: 1px solid var(--border); /* Border for cards */
+  border-radius: 14px; padding: 14px; /* Rounded corners and padding */
+  box-shadow: var(--soft-shadow); /* Soft shadow for card */
 }
-.card .label{ color: var(--text-dim); font-size: 13px; margin-bottom: 6px; }
-.card .value{ font-weight: 900; font-size: 20px; color: #f8fafc; }
+.card .label{ color: var(--text-dim); font-size: 13px; margin-bottom: 6px; } /* Label styling */
+.card .value{ font-weight: 900; font-size: 20px; color: #f8fafc; } /* Value styling */
 
 /* ---------- Table select ---------- */
 .custom-table{
-  display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; margin-bottom: 10px;
+  display: grid; grid-template-columns: 1fr auto; gap: 10px; align-items: end; margin-bottom: 10px; /* Grid for table selection */
 }
-.custom-table label{ grid-column: 1 / -1; font-size: 13px; color: var(--text-soft); }
+.custom-table label{ grid-column: 1 / -1; font-size: 13px; color: var(--text-soft); } /* Label styling */
 .custom-table input{
   padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--bg-soft); color: var(--text);
-  transition: box-shadow .15s ease, border-color .15s ease, background .2s ease;
+  transition: box-shadow .15s ease, border-color .15s ease, background .2s ease; /* Transition effects */
 }
 .custom-table input:focus{
-  border-color: var(--accent); box-shadow: 0 0 0 4px var(--ring);
+  border-color: var(--accent); box-shadow: 0 0 0 4px var(--ring); /* Focus state for input */
 }
-.current-table{ color: var(--text-soft); }
-.note{ color: var(--text-dim); font-size: 13px; margin-top: 6px; }
+.current-table{ color: var(--text-soft); } /* Style for current table info */
+.note{ color: var(--text-dim); font-size: 13px; margin-top: 6px; } /* Note styling */
 
 /* ---------- Play area ---------- */
-.bet-row{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center; }
-.toggle{ display: flex; gap: 8px; }
+.bet-row{ display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center; } /* Grid layout for bet row */
+.toggle{ display: flex; gap: 8px; } /* Flex layout for toggle buttons */
 
-.amount-box label{ font-size: 13px; color: var(--text-soft); display: block; margin-bottom: 6px; }
+.amount-box label{ font-size: 13px; color: var(--text-soft); display: block; margin-bottom: 6px; } /* Label for amount input */
 #bet-amount, #approve-amount{
   width: 100%; padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px;
   background: var(--bg-soft); color: var(--text);
   transition: box-shadow .15s ease, border-color .15s ease, background .2s ease;
 }
 #bet-amount:focus, #approve-amount:focus{
-  border-color: var(--accent); box-shadow: 0 0 0 4px var(--ring);
+  border-color: var(--accent); box-shadow: 0 0 0 4px var(--ring); /* Focus state for input fields */
 }
 
-.actions{ display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+.actions{ display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; } /* Layout for action buttons */
 
 /* ---------- Buttons ---------- */
 .btn{
   appearance: none; border: 1px solid var(--border);
   padding: 12px 16px; border-radius: 12px; cursor: pointer;
   font-weight: 900; letter-spacing: .02em;
-  background: linear-gradient(180deg, #0b1220, #090f1a);
-  color: var(--text); box-shadow: var(--shadow);
+  background: linear-gradient(180deg, #0b1220, #090f1a); /* Default background */
+  color: var(--text); box-shadow: var(--shadow); /* Text color and shadow */
   transition: transform .05s ease, filter .15s ease, box-shadow .2s ease, background .2s ease, border-color .2s ease;
 }
-.btn:hover{ filter: brightness(1.03); }
-.btn:active{ transform: translateY(1px) scale(.995); }
-.btn:focus-visible{ box-shadow: 0 0 0 4px var(--ring); }
+.btn:hover{ filter: brightness(1.03); } /* Hover effect */
+.btn:active{ transform: translateY(1px) scale(.995); } /* Active state */
+.btn:focus-visible{ box-shadow: 0 0 0 4px var(--ring); } /* Focus visible state */
 
-/* Ghost */
+/* Ghost button */
 .btn.ghost{
-  background: rgba(9, 15, 26, .65);
-  border-color: var(--border);
-  color: var(--text-soft);
+  background: rgba(9, 15, 26, .65); /* Ghost button background */
+  border-color: var(--border); /* Border color */
+  color: var(--text-soft); /* Text color */
 }
 
 /* Primary (Connect / Play) */
 .primary{
-  background: linear-gradient(180deg, var(--primary), var(--primary-press));
+  background: linear-gradient(180deg, var(--primary), var(--primary-press)); /* Gradient for primary button */
   border-color: #0f2918;
-  color: #ecfdf5;
+  color: #ecfdf5; /* Text color */
 }
-.primary:hover{ background: linear-gradient(180deg, var(--primary-hover), var(--primary)); }
-.primary:active{ background: linear-gradient(180deg, var(--primary-press), #0d5e2f); }
+.primary:hover{ background: linear-gradient(180deg, var(--primary-hover), var(--primary)); } /* Hover effect */
+.primary:active{ background: linear-gradient(180deg, var(--primary-press), #0d5e2f); } /* Active effect */
 
 /* Accented (Approve / Set Table / Guide) */
 .accent{
-  background: linear-gradient(180deg, var(--accent), var(--accent-press));
+  background: linear-gradient(180deg, var(--accent), var(--accent-press)); /* Accent button background */
   border-color: #0a2a3c;
-  color: #ecfeff;
+  color: #ecfeff; /* Text color */
 }
-.accent:hover{ background: linear-gradient(180deg, var(--accent-hover), var(--accent)); }
+.accent:hover{ background: linear-gradient(180deg, var(--accent-hover), var(--accent)); } /* Hover effect */
 
 /* Toggle active */
 .btn.toggle{
-  background: linear-gradient(180deg, #0b1220, #0a0f1a);
-  color: var(--text-soft);
+  background: linear-gradient(180deg, #0b1220, #0a0f1a); /* Default toggle button background */
+  color: var(--text-soft); /* Text color */
 }
 .btn.toggle.active{
-  background: linear-gradient(180deg, var(--accent), var(--accent-press));
+  background: linear-gradient(180deg, var(--accent), var(--accent-press)); /* Active toggle button background */
   border-color: #0a2a3c;
-  color: #ecfeff;
+  color: #ecfeff; /* Text color */
 }
 
 /* Emphasis buttons by ID */
@@ -188,55 +188,55 @@ h2{ font-size: 20px; color: var(--text-soft); }
 #btn-set-table{ font-size: 14px; }
 #btn-guide{
   font-size: 14px;
-  background: linear-gradient(180deg, #1f2937, #0f172a);
+  background: linear-gradient(180deg, #1f2937, #0f172a); /* Guide button background */
   border-color: #1f2937;
-  color: var(--text-soft);
+  color: var(--text-soft); /* Text color */
 }
-#btn-guide:hover{ background: linear-gradient(180deg, #273444, #0f172a); }
+#btn-guide:hover{ background: linear-gradient(180deg, #273444, #0f172a); } /* Hover effect */
 
-/* Inline input trong hàng nút */
+/* Inline input for action buttons */
 .inline-input{
   width: 200px;
   padding: 12px 14px; border: 1px solid var(--border); border-radius: 12px;
-  background: var(--bg-soft); color: var(--text);
+  background: var(--bg-soft); color: var(--text); /* Background and text color */
 }
-.inline-input:focus{ border-color: var(--accent); box-shadow: 0 0 0 4px var(--ring); }
+.inline-input:focus{ border-color: var(--accent); box-shadow: 0 0 0 4px var(--ring); } /* Focus state */
 
 /* ---------- Limits & Status ---------- */
-.limits{ color: var(--text-soft); margin-top: 6px; }
+.limits{ color: var(--text-soft); margin-top: 6px; } /* Limits section text */
 .status{
   margin-top: 10px; padding: 10px 12px; border-radius: 12px;
-  background: rgba(56, 189, 248, .08); border: 1px dashed rgba(56, 189, 248, .25);
+  background: rgba(56, 189, 248, .08); border: 1px dashed rgba(56, 189, 248, .25); /* Status background */
   color: #cdeafe; font-weight: 600;
   word-break: break-word;
 }
 .status.ok{
-  background: rgba(22, 163, 74, .10);
+  background: rgba(22, 163, 74, .10); /* Success status background */
   border-color: rgba(16, 185, 129, .35);
-  color: #bbf7d0;
+  color: #bbf7d0; /* Success text color */
 }
 .status.err{
-  background: rgba(239, 68, 68, .10);
+  background: rgba(239, 68, 68, .10); /* Error status background */
   border-color: rgba(239, 68, 68, .35);
-  color: #fecaca;
+  color: #fecaca; /* Error text color */
 }
 
 /* ---------- Stage (Bowl + Coins) ---------- */
 .stage{
   position: relative; display: grid; place-items: center; min-height: 280px;
-  background: radial-gradient(ellipse at 50% 30%, rgba(14,165,233,.08) 0%, rgba(15,23,42,.45) 55%, rgba(2,6,23,.6) 100%);
+  background: radial-gradient(ellipse at 50% 30%, rgba(14,165,233,.08) 0%, rgba(15,23,42,.45) 55%, rgba(2,6,23,.6) 100%); /* Stage background */
   border: 1px dashed var(--border); border-radius: 18px;
-  box-shadow: inset 0 10px 24px rgba(2,8,23,.55);
+  box-shadow: inset 0 10px 24px rgba(2,8,23,.55); /* Inset shadow for stage */
 }
 
 /* Bowl */
 .bowl{
-  width: 190px; height: 190px; border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, #7dd3fc 0%, #38bdf8 45%, #0ea5e9 70%, #0369a1 100%);
-  box-shadow: inset 0 12px 24px rgba(2,8,23,.55), 0 12px 22px rgba(2,8,23,.45);
-  opacity: .95; transform-origin: 50% 60%;
+  width: 190px; height: 190px; border-radius: 50%; /* Round bowl shape */
+  background: radial-gradient(circle at 35% 35%, #7dd3fc 0%, #38bdf8 45%, #0ea5e9 70%, #0369a1 100%); /* Bowl gradient */
+  box-shadow: inset 0 12px 24px rgba(2,8,23,.55), 0 12px 22px rgba(2,8,23,.45); /* Shadow effects */
+  opacity: .95; transform-origin: 50% 60%; /* Positioning for animation */
 }
-.bowl.shake{ animation: shake .58s ease-in-out 0s 2; } /* khớp app.js (add/remove .shake) */
+.bowl.shake{ animation: shake .58s ease-in-out 0s 2; } /* Animation for shaking bowl */
 @keyframes shake{
   0%   { transform: translateX(0) rotate(0deg); }
   20%  { transform: translateX(-4px) rotate(-1.6deg); }
@@ -248,23 +248,23 @@ h2{ font-size: 20px; color: var(--text-soft); }
 
 /* Coins */
 .coins{
-  position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none;
+  position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; /* Positioning coins */
 }
 .coins .coin{
-  position: absolute; width: 46px; height: 46px; border-radius: 50%;
-  box-shadow: inset 0 10px 12px rgba(0,0,0,.25), 0 3px 6px rgba(0,0,0,.18);
-  transform: rotate(var(--rot, 0deg));
+  position: absolute; width: 46px; height: 46px; border-radius: 50%; /* Coin shape */
+  box-shadow: inset 0 10px 12px rgba(0,0,0,.25), 0 3px 6px rgba(0,0,0,.18); /* Coin shadow */
+  transform: rotate(var(--rot, 0deg)); /* Coin rotation */
 }
 .coin.white{
-  background: radial-gradient(circle at 35% 35%, #ffffff, #eef2f7 55%, #cbd5e1 100%);
+  background: radial-gradient(circle at 35% 35%, #ffffff, #eef2f7 55%, #cbd5e1 100%); /* White coin gradient */
   border: 1px solid #c6d0dc;
 }
 .coin.red{
-  background: radial-gradient(circle at 35% 35%, #fb7185, #ef4444 60%, #991b1b 100%);
+  background: radial-gradient(circle at 35% 35%, #fb7185, #ef4444 60%, #991b1b 100%); /* Red coin gradient */
   border: 1px solid #b91c1c;
 }
 
-/* (giữ sẵn layout mẫu nếu bạn cần hiển thị nhiều đồng xu) */
+/* (preserving layout template if you want to show multiple coins) */
 .layout-even-0 .coin:nth-child(1),
 .layout-odd-1  .coin:nth-child(1),
 .layout-even-2a .coin:nth-child(1),
@@ -296,49 +296,49 @@ h2{ font-size: 20px; color: var(--text-soft); }
 
 /* ---------- Footer ---------- */
 .footer{
-  margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--border);
-  color: var(--text-dim); text-align: center;
+  margin-top: 22px; padding-top: 14px; border-top: 1px solid var(--border); /* Footer styling */
+  color: var(--text-dim); text-align: center; /* Text color and alignment */
 }
 .footer .links{
-  display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;
+  display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; /* Footer links styling */
 }
-.footer .fine{ font-size: 12px; }
+.footer .fine{ font-size: 12px; } /* Footer fine print */
 
 /* ---------- Responsive ---------- */
 @media (max-width: 940px){
-  .container{ padding: 18px 14px 84px; }
+  .container{ padding: 18px 14px 84px; } /* Adjust container padding for smaller screens */
 }
 @media (max-width: 780px){
-  .header{ flex-direction: column; align-items: flex-start; gap: 10px; }
-  .balances-grid, .result-grid{ grid-template-columns: 1fr; }
-  .custom-table{ grid-template-columns: 1fr; }
-  .bet-row{ grid-template-columns: 1fr; }
-  .wallet-box{ width: 100%; justify-content: space-between; }
-  .inline-input{ width: 100%; }
-  .stage{ min-height: 250px; }
-  .bowl{ width: 170px; height: 170px; }
-  .coins .coin{ width: 42px; height: 42px; }
+  .header{ flex-direction: column; align-items: flex-start; gap: 10px; } /* Adjust header layout for small screens */
+  .balances-grid, .result-grid{ grid-template-columns: 1fr; } /* Single column grid for small screens */
+  .custom-table{ grid-template-columns: 1fr; } /* Single column table */
+  .bet-row{ grid-template-columns: 1fr; } /* Single column for bet row */
+  .wallet-box{ width: 100%; justify-content: space-between; } /* Adjust wallet box for small screens */
+  .inline-input{ width: 100%; } /* Full width inline input */
+  .stage{ min-height: 250px; } /* Adjust stage size for small screens */
+  .bowl{ width: 170px; height: 170px; } /* Adjust bowl size */
+  .coins .coin{ width: 42px; height: 42px; } /* Adjust coin size */
 }
 
 /* ---------- Small UX touches ---------- */
 .btn:disabled{
-  opacity: .6; cursor: not-allowed; filter: grayscale(.35);
+  opacity: .6; cursor: not-allowed; filter: grayscale(.35); /* Disabled button styling */
 }
 .btn:not(:disabled):hover{
-  box-shadow: 0 8px 22px rgba(14,165,233,.18), var(--soft-shadow);
+  box-shadow: 0 8px 22px rgba(14,165,233,.18), var(--soft-shadow); /* Hover effect */
 }
-input::placeholder{ color: #6b7280; }
+input::placeholder{ color: #6b7280; } /* Placeholder text color */
 
 /* ==== Price text + skeleton shimmer ==== */
 #price-text {
   font-weight: 800;
   letter-spacing: .01em;
-  color: var(--text-soft, #cbd5e1);
+  color: var(--text-soft, #cbd5e1); /* Price text color */
 }
 .skeleton {
-  display: inline-block; height: 1em; width: 10em; border-radius: 6px;
+  display: inline-block; height: 1em; width: 10em; border-radius: 6px; /* Skeleton shimmer effect for loading */
   background: linear-gradient(90deg, #f2f4f8 25%, #e9edf7 37%, #f2f4f8 63%);
   background-size: 400% 100%;
-  animation: sk 1.2s ease-in-out infinite;
+  animation: sk 1.2s ease-in-out infinite; /* Animation for shimmer effect */
 }
 @keyframes sk { 0% { background-position: 100% 0; } 100% { background-position: 0 0; } }
