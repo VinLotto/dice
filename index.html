@@ -8,7 +8,7 @@
   <link rel="icon" href="logo64.png" type="image/png"/>
   <link rel="stylesheet" href="style.css"/>
 
-  <!-- Load ethers v5 *trước* app.js. Dùng 2 CDN để dự phòng -->
+  <!-- Load ethers v5 *before* app.js. Two CDNs are used for fallback -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js" crossorigin="anonymous"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" crossorigin="anonymous"></script>
 </head>
@@ -33,17 +33,17 @@
       </div>
 
       <div class="wallet-box">
-        <!-- Guide (giữ đúng link bạn dùng) -->
+        <!-- Guide (keep the correct link you use) -->
         <a id="btn-guide" class="btn accent" href="https://docs.google.com/document/d/1ychYdYmevJpFydfHuwXM3iw7VLtJouYp/edit" target="_blank" rel="noopener">
           Guide / How to play
         </a>
 
-        <!-- Swap VIN/VIC (giữ IPFS link bạn dùng) -->
+        <!-- Swap VIN/VIC (keep the IPFS link you use) -->
         <a id="btn-open-swap" class="btn accent" href="https://ipfs.io/ipfs/bafybeievvutakkkchayh4nwwvcrmu6ff4phhza5ma27rej7rqakhvvxdv4" target="_blank" rel="noopener">
           Swap VIN/VIC
         </a>
 
-        <!-- Wallet buttons (không dùng onclick inline; app.js sẽ bind) -->
+        <!-- Wallet buttons (don't use onclick inline; app.js will bind) -->
         <button id="btn-connect" class="btn primary">Play Dice Game</button>
         <div id="wallet-info" class="wallet-info hidden">
           <span id="addr-short">—</span>
@@ -62,7 +62,7 @@
         </div>
         <div class="card">
           <div class="label">VIN</div>
-          <!-- Giữ nguyên ID cũ để app.js hiển thị số dư VIN -->
+          <!-- Keep the old ID for app.js to display VIN balance -->
           <div id="froll-balance" class="value">0.0000</div>
         </div>
         <div class="card">
@@ -184,17 +184,17 @@
   })();
   </script>
 
-  <!-- ===== ETHERS FALLBACK CHECK (phòng khi CDN chặn) ===== -->
+  <!-- ===== ETHERS FALLBACK CHECK (in case the CDN is blocked) ===== -->
   <script>
   (function ensureEthers(){
     function msg(){
       var el = document.getElementById('tx-status');
       if(el){
         el.classList.add('err');
-        el.textContent = 'Không tải được ethers từ CDN. Hãy thử refresh hoặc tải ethers.umd.min.js về cùng thư mục và đổi <script> sang file local.';
+        el.textContent = 'Could not load ethers from CDN. Try refreshing or download ethers.umd.min.js and use it locally.';
       }
     }
-    // Nếu sau 1.2s vẫn chưa có window.ethers -> cảnh báo
+    // If after 1.2s window.ethers is still not present -> alert
     setTimeout(function(){ if(!window.ethers) msg(); }, 1200);
   })();
   </script>
